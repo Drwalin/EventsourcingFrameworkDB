@@ -22,6 +22,7 @@
 #include <cstring>
 
 #include <libusockets.h>
+#include <memory>
 
 #include "Loop.hpp"
 #include "Context.hpp"
@@ -32,6 +33,33 @@
 #include "Debug.hpp"
 
 namespace net {
+	
+	void Socket::IncRefs() {
+		std::shared_ptr<Socket> s = self.lock();
+		if(s == NULL)
+			return;
+		uint8_t bytes[sizeof(std::shared_ptr<Socket>)];
+		new (bytes) std::shared_ptr<Socket>(s);
+	}
+	
+	template<typename T>
+	struct Destructor {
+		Destructor(T* ptr) {
+			ptr->~T();
+		}
+	};
+	
+	void Socket::DecRefs() {
+		std::shared_ptr<Socket> s = self.lock();
+		if(s == NULL)
+			return;
+		uint8_t bytes[sizeof(std::shared_ptr<Socket>)];
+		memcpy(bytes, &s, sizeof(std::shared_ptr<Socket>));
+		// TODO it may be problematic
+		Destructor tmp((std::shared_ptr<Socket>*)bytes);
+	}
+	
+	
 	Socket::~Socket() {
 	}
 	

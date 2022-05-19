@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <atomic>
 #include <cstring>
+#include <memory>
 
 #include <mpmc_pool.hpp>
 
@@ -113,6 +114,10 @@ namespace net {
 			Assure();
 			buffer->user_data(userData);
 		}
+		
+		void SetSocket(std::shared_ptr<class Socket> socket);
+		std::shared_ptr<class Socket> GetSocket();
+		std::shared_ptr<class Socket> RemoveSocket();
 
 		inline void Clear() {
 			if(buffer)

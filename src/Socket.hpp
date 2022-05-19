@@ -24,6 +24,7 @@
 #include <memory>
 #include <libusockets.h>
 #include <string>
+#include <atomic>
 
 #include "Buffer.hpp"
 
@@ -54,8 +55,10 @@ namespace net {
 		uint8_t received_size[4];
 		int32_t bytes_to_receive;
 
-
-
+		
+		void IncRefs();
+		void DecRefs();
+		
 		void Init(struct us_socket_t* socket, int ssl);
 
 

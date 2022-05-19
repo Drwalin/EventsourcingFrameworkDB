@@ -17,6 +17,7 @@
  */
 
 #include "Buffer.hpp"
+#include "Socket.hpp"
 
 #include <mpmc_pool.hpp>
 
@@ -45,6 +46,35 @@ namespace net {
 		other.buffer = NULL;
 		return *this;
 	}
+	
+	
+	void Buffer::SetSocket(std::shared_ptr<class Socket> socket) {
+		if(socket) {
+			socket->IncRefs();
+			UserData(socket.get());
+		}
+	}
+	
+	std::shared_ptr<class Socket> Buffer::GetSocket() {
+		void *u = UserData();
+		if(u) {
+			return ((Socket*)u)->self.lock();
+		}
+		return NULL;
+	}
+	
+	std::shared_ptr<class Socket> Buffer::RemoveSocket() {
+		void *u = UserData();
+		if(u) {
+			std::shared_ptr<class Socket> s = ((Socket*)u)->self.lock();
+			// TODO it may be problematic
+			s->DecRefs();
+			return s;
+		}
+		return NULL;
+	}
+	
+	
 
 	Buffer::Vector* Buffer::Allocate() {
 		Buffer::Vector* v = impl::bufferPool.acquire();
