@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <thread>
+
 #include <libusockets.h>
 
 #include "Loop.hpp"
@@ -42,6 +44,19 @@ namespace net {
 		us_loop_run(loop);
 		ThisThreadLoop() = NULL;
 		running = false;
+	}
+	
+	void Loop::RunAsync() {
+		std::thread([](Loop* loop){
+				try {
+					loop->Run();
+				} catch(...) {
+					fprintf(stderr,
+							" Loop::RunAsync() caught exception in %s:%i\n",
+							__FILE__, __LINE__);
+					fflush(stderr);
+				}
+			}, this).detach();
 	}
 	
 	

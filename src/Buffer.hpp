@@ -35,6 +35,7 @@ namespace net {
 				__allocated = 256;
 				__size = 0;
 				__data = (uint8_t*)malloc(__allocated);
+				__user_data = NULL;
 			}
 			inline ~Vector() {
 				free(__data);
@@ -75,8 +76,17 @@ namespace net {
 				memcpy(__data+old_size, buffer, bytes);
 			}
 			
+			inline void* user_data() {
+				return __user_data;
+			}
+			
+			inline void user_data(void* __user_data) {
+				this->__user_data = __user_data;
+			}
+			
 		private:
 			uint8_t* __data;
+			void* __user_data;
 			int32_t __size;
 			int32_t __allocated;
 		};
@@ -92,6 +102,17 @@ namespace net {
 		Buffer& operator=(const Buffer&) = delete;
 		Buffer& operator=(Buffer&) = delete;
 		Buffer& operator=(Buffer&& other);
+		
+		template<typename T=void>
+		inline T* UserData() {
+			return buffer ? (T*)buffer->user_data() : NULL;
+		}
+		
+		template<typename T=void>
+		inline void UserData(T* userData) {
+			Assure();
+			buffer->user_data(userData);
+		}
 
 		inline void Clear() {
 			if(buffer)

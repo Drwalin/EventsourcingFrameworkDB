@@ -44,6 +44,7 @@ namespace net {
 		static std::shared_ptr<Loop>& ThisThreadLoop();
 
 		void Run();
+		void RunAsync();
 
 		
 		void AllcastSend(Buffer& sendBuffer, std::shared_ptr<Socket> ignore=NULL);

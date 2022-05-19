@@ -38,7 +38,8 @@ $(LIBFILE): $(OBJECTS) uSockets/uSockets.a
 	$(AR) rvs $@ $(OBJECTS)
 
 
-EXAMPLE_FILES = examples/networking_test.exe examples/chat_client.exe examples/chat_server.exe
+EXAMPLE_FILES = examples/networking_test.exe
+EXAMPLE_FILES += examples/chat_client.exe examples/chat_server.exe
 
 test: $(EXAMPLE_FILES)
 	examples/networking_test.exe

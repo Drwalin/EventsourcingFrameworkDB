@@ -4,13 +4,10 @@
 #include <Socket.hpp>
 
 #include <iostream>
-#include <thread>
 #include <cstring>
 #include <string_view>
 
 #include <Debug.hpp>
-
-std::atomic<int> received_counter = 0;
 
 int main(int argc, char** argv) {
 	std::shared_ptr<net::Loop> loop = net::Loop::Make();
@@ -32,16 +29,7 @@ int main(int argc, char** argv) {
 	context->InternalConnect(argc==3 ? argv[1] : "127.0.0.1",
 			argc>=2 ? atoi(argv[argc==3?2:1]) : 32367);
 	
-	std::thread thread_loop = std::thread([=]() {
-			try {
-				printf(" loop->Run();\n");
-				loop->Run();
-			} catch (...) {
-				printf(" EXCEPTION... FAILED\n\n");
-				fflush(stdout);
-				exit(1);
-			}
-		});
+	loop->RunAsync();
 	
 	try {
 		while(true) {
@@ -58,7 +46,6 @@ int main(int argc, char** argv) {
 		fflush(stdout);
 		exit(2);
 	}
-	thread_loop.join();
 	return 0;
 }
 

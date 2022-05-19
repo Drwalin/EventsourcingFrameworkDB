@@ -3,12 +3,11 @@
 #include <Loop.hpp>
 #include <Socket.hpp>
 
+#include <iostream>
 #include <cstring>
 #include <string_view>
 
 #include <Debug.hpp>
-
-std::atomic<int> received_counter = 0;
 
 int main(int argc, char** argv) {
 	std::shared_ptr<net::Loop> loop = net::Loop::Make();
