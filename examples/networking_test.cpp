@@ -22,10 +22,12 @@ void process(int portOpen, int portOther, int id) {
 						portOther);
 				buffer.Write(str, strlen(str)+1);
 				socket->Send(buffer);
+				socket->receivingMethod = {net::Socket::END_WITH_CHARACTER, 0};
 			},
 			[=](std::shared_ptr<net::Socket> socket, int ec, void* edata) {
 			},
-			[=](net::Buffer& buffer, std::shared_ptr<net::Socket> socket) {
+			[=](net::Buffer& buffer, std::shared_ptr<net::Socket> socket)
+			-> net::Socket::ReceivingMethod {
 				std::string_view v((char*)buffer.Data(), buffer.Size()-1);
 				bool valid = v.starts_with("Hello from ")
 						&& v.ends_with(", has been sent");
@@ -41,6 +43,7 @@ void process(int portOpen, int portOther, int id) {
 						exit(0);
 					}
 				}
+				return {net::Socket::END_WITH_CHARACTER, 0};
 			},
 			"cert/user.key", "cert/user.crt", "cert/rootca.crt", NULL);
 	

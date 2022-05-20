@@ -66,8 +66,7 @@ namespace net {
 	void Socket::OnOpen(char* ip, int ipLength) {
 		remoteIp = std::string(TranslateIp(ip, ipLength));
 		context->sockets.insert(self.lock());
-		bytes_to_receive = 0;
-		received_bytes_of_size = 0;
+		receivingMethod.method = ANY_BYTES;
 	}
 
 	void Socket::OnEnd() {
@@ -93,35 +92,55 @@ namespace net {
 
 	void Socket::OnData(uint8_t* data, int length) {
 		while(length) {
-			if(received_bytes_of_size < 4) {
-				int bytes_to_copy = std::min(4-received_bytes_of_size, length);
-				memcpy(received_size+received_bytes_of_size, data,
-						bytes_to_copy);
-				length -= bytes_to_copy;
-				data += bytes_to_copy;
-				received_bytes_of_size += bytes_to_copy;
-				if(received_bytes_of_size == 4) {
-					bytes_to_receive =
-						(int(received_size[0]))
-						| (int(received_size[1]) << 8)
-						| (int(received_size[2]) << 16)
-						| (int(received_size[3]) << 24);
-				}
-			} else {
-				int32_t bytes_to_copy = std::min(bytes_to_receive, length);
-				buffer.Write(data, bytes_to_copy);
-				data += bytes_to_copy;
-				length -= bytes_to_copy;
-				bytes_to_receive -= bytes_to_copy;
-				if(bytes_to_receive == 0) {
-					if(context->onReceiveMessage) {
-						context->onReceiveMessage(buffer, self.lock());
+			switch(receivingMethod.method) {
+				case ANY_BYTES:
+					buffer.Write(data, length);
+					InternalOnDataBufferDone();
+					return;
+				case EXACT_BYTES:
+					if(length + buffer.Size() < receivingMethod.value) {
+						buffer.Write(data, length);
+						return;
+					} else if(length + buffer.Size() >= receivingMethod.value) {
+						int32_t c = receivingMethod.value - buffer.Size();
+						buffer.Write(data, c);
+						InternalOnDataBufferDone();
+						length -= c;
+						data += c;
 					}
-					buffer.Clear();
-					received_bytes_of_size = 0;
-				}
+					break;
+				case END_WITH_CHARACTER:
+					{
+						int i=0;
+						for(i=0; i<length; ++i) {
+							if(data[i] == (uint8_t)(char)receivingMethod.value)
+								break;	
+						}
+						if(i < length) {
+							++i;
+							buffer.Write(data, i);
+							length -= i;
+							data += i;
+							InternalOnDataBufferDone();
+						} else {
+							buffer.Write(data, length);
+							return;
+						}
+					}
+					break;
+				default:
+					// TODO error = not implemented
+					throw "Error: Socket::OnData default: receivinMethod not implemented.";
 			}
 		}
+	}
+	
+	void Socket::InternalOnDataBufferDone() {
+		if(context->onReceiveMessage) {
+			receivingMethod
+				= context->onReceiveMessage(buffer, self.lock());
+		}
+		buffer.Clear();
 	}
 
 	void Socket::Send(Buffer& sendBuffer) {
@@ -139,12 +158,6 @@ namespace net {
 
 	void Socket::InternalSend(Buffer& buffer) {
 		int32_t length = buffer.Size();
-		uint8_t b[4];
-		b[0] = (length)&0xFF;
-		b[1] = (length>>8)&0xFF;
-		b[2] = (length>>16)&0xFF;
-		b[3] = (length>>24)&0xFF;
-		us_socket_write(ssl, socket, (char*)b, 4, length);
 		us_socket_write(ssl, socket, (char*)buffer.Data(), length, 0);
 	}
 

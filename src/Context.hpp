@@ -41,7 +41,7 @@ namespace net {
 		std::function<void(std::shared_ptr<Socket>, bool, std::string)>
 			onNewSocket;
 		std::function<void(std::shared_ptr<Socket>, int, void*)> onCloseSocket;
-		std::function<void(Buffer&, std::shared_ptr<Socket>)> onReceiveMessage;
+		std::function<Socket::ReceivingMethod(Buffer&, std::shared_ptr<Socket>)> onReceiveMessage;
 		int ssl;
 		std::weak_ptr<Context> self;
 		std::set<std::shared_ptr<Socket>> sockets;
@@ -80,7 +80,7 @@ namespace net {
 					onNewSocket,
 				std::function<void(std::shared_ptr<Socket>, int, void*)>
 					onCloseSocket,
-				std::function<void(Buffer&, std::shared_ptr<Socket>)>
+				std::function<Socket::ReceivingMethod(Buffer&, std::shared_ptr<Socket>)>
 					onReceiveMessage,
 				const char* keyFileName, const char* certFileName,
 				const char* caFileName, const char* passphrase);

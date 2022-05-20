@@ -34,6 +34,27 @@ namespace net {
 		Socket() = default;
 	public:
 		
+		enum Method {
+			// TODO test all following methods:
+			ANY_BYTES,
+			EXACT_BYTES,
+// 			ATLEAST_BYTES,
+// 			ATMOST_BYTES,
+			END_WITH_CHARACTER,
+// 			END_WITH_CRLF,
+// 			END_WITH_CRLF_CRLF,
+// 			HTML_HEADER,
+// 			HTML_BODY,
+// 			HTML_HEADER_BODY,
+// 			HTML_HEADER_DONE_BODY,
+// 			HTML_HEADER_ONE_LINE
+		};
+		
+		struct ReceivingMethod {
+			Method method = ANY_BYTES;
+			int32_t value = 0;
+		};
+		
 		~Socket();
 		
 		struct us_socket_t* socket;
@@ -51,9 +72,7 @@ namespace net {
 		};
 
 		Buffer buffer;
-		int32_t received_bytes_of_size;
-		uint8_t received_size[4];
-		int32_t bytes_to_receive;
+		ReceivingMethod receivingMethod;
 
 		
 		void IncRefs();
@@ -74,6 +93,8 @@ namespace net {
 
 		void InternalSend(Buffer& buffer);
 		void InternalClose();
+		
+		void InternalOnDataBufferDone();
 		
 		friend class net::Context;
 	};

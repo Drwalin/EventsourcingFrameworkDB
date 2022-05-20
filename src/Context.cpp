@@ -159,7 +159,7 @@ namespace net {
 				onNewSocket,
 			std::function<void(std::shared_ptr<Socket>, int, void*)>
 				onCloseSocket,
-			std::function<void(Buffer&, std::shared_ptr<Socket>)>
+			std::function<Socket::ReceivingMethod(Buffer&, std::shared_ptr<Socket>)>
 				onReceiveMessage,
 			const char* keyFileName, const char* certFileName,
 			const char* caFileName, const char* passphrase) {

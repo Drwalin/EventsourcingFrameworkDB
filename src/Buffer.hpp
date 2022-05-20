@@ -58,16 +58,16 @@ namespace net {
 				return __data[id];
 			}
 			
-			inline void resize(int32_t new_size) {
-				static int C = 0;
-				++C;
-				if(new_size > 2000)
-					printf(" size: %i over %i resizings\n", new_size, C);
+			inline void reserve(int32_t new_reserved) {
 				int32_t old_allocated = __allocated;
-				while(new_size > __allocated)
+				while(new_reserved > __allocated)
 					__allocated += __allocated<<1;
 				if(old_allocated != __allocated)
 					__data = (uint8_t*)realloc(__data, __allocated);
+			}
+			
+			inline void resize(int32_t new_size) {
+				reserve(new_size);
 				__size = new_size;
 			}
 			
@@ -132,6 +132,11 @@ namespace net {
 		inline void Assure() {
 			if(buffer == NULL)
 				buffer = Allocate();
+		}
+		
+		inline void Reserve(int32_t newAllocated) {
+			Assure();
+			buffer->reserve(newAllocated);
 		}
 
 		inline void Write(uint8_t byte) {

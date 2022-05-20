@@ -15,15 +15,18 @@ int main(int argc, char** argv) {
 				std::shared_ptr<net::Socket> socket,
 				bool isClient, std::string ip) {
 				DEBUG(" Connected from: %s\n", ip.c_str());
+				socket->receivingMethod = {net::Socket::END_WITH_CHARACTER, 0};
 			},
 			[=](std::shared_ptr<net::Socket> socket, int ec, void* edata) {
 				DEBUG(" Close connection");
 			},
-			[=](net::Buffer& buffer, std::shared_ptr<net::Socket> socket) {
+			[=](net::Buffer& buffer, std::shared_ptr<net::Socket> socket)
+			-> net::Socket::ReceivingMethod {
 				std::string_view v((char*)buffer.Data(), buffer.Size()-1);
 				printf(" received: %s\n", v.data());
 				fflush(stdout);
 				loop->AllcastSend(buffer, socket);
+				return {net::Socket::END_WITH_CHARACTER, 0};
 			},
 			"cert/user.key", "cert/user.crt", "cert/rootca.crt", NULL);
 	
