@@ -3,7 +3,7 @@ include MakefileSTD/MakefileSTD
 
 AR = ar
 CXX = g++
-CXXFLAGS = -flto -pipe -std=c++2a -pedantic -Wall -IuSockets/src -lpthread
+CXXFLAGS = -flto -pipe -std=c++2a -pedantic -Wall -lpthread
 LIBS=
 LIBFILE=ICon5.a
 USOCKETSFLAGS=
@@ -27,7 +27,7 @@ else
 endif
 LIBS += -lpthread -lssl -lcrypto
 
-INCLUDE = -I./src/ -I./concurrent -I./uSockets/src
+INCLUDE = -I./src/ -I./concurrent -IuSockets/src 
 CXXFLAGS += $(INCLUDE)
 OBJECTS += bin/Buffer.o bin/Socket.o
 OBJECTS += bin/Context.o bin/Loop.o
@@ -57,8 +57,6 @@ uSockets/uSockets.a:
 # objects:
 bin/tests/%.o: tests/%.cpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
-#bin/networking/%.o: src/networking/%.cpp src/networking/%.hpp
-#	$(CXX) -c -o $@ $< $(CXXFLAGS)
 bin/%.o: src/%.cpp src/%.hpp
 	$(CXX) -c -o $@ $< $(CXXFLAGS)
 
