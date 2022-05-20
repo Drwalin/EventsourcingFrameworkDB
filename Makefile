@@ -5,7 +5,7 @@ AR = ar
 CXX = g++
 CXXFLAGS = -flto -pipe -std=c++2a -pedantic -Wall -IuSockets/src -lpthread
 LIBS=
-LIBFILE=libICon5.a
+LIBFILE=ICon5.a
 USOCKETSFLAGS=
 
 ifeq ($(DEBUG),1)
